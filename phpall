@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+#  USAGE
+#    phpall [php_code | php_script]
+#
+#  DESCRIPTION
+#    Execute PHP code or PHP script with all PHP program, which is
+#    in the same directory to phpall command. Then, show the results.
+#
+#    When php_code outputs something, phpall shows same results.
+#    If php_code shows nothing, phpall executes "var_dump(php_code);"
+
+BIN_DIR=`dirname $0`
+PROGNAME=`basename $0`
+
+if [ -z "$1" ]; then
+  echo "usage: $PROGNAME [php_code | php_script]"
+  exit
+fi
+
+php_script_path=
+php_code=
+if [ -f "$1" ]; then
+  php_script_path="$1"
+else
+  php_code=`echo $1 | sed 's/[; ]*$//'`
+fi
+
+for PHP_PATH in $BIN_DIR/php-?.?.?
+do
+if [ -n "$php_script_path" ]
+then
+  RESULT=`$PHP_PATH "$php_script_path"`
+else
+  RESULT=`$PHP_PATH -r "$php_code;"`
+  if [ $? = 0 -a -z "$RESULT" ] ; then
+    RESULT=`$PHP_PATH -r "var_dump($php_code);"`
+  fi
+fi
+  echo `basename $PHP_PATH`": "$RESULT
+done
