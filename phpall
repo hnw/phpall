@@ -13,9 +13,19 @@
 BIN_DIR=`dirname $0`
 PROGNAME=`basename $0`
 
+VERSION="0.0.1"
+
 if [ -z "$1" ]; then
+  echo "phpall version $VERSION"
   echo "usage: $PROGNAME [php_code | php_script]"
   exit
+fi
+
+PHPS=`find $BIN_DIR -name 'php-?.?.?'`
+
+if [ -z "$PHPS" ] ; then
+  echo "phpall: no PHP binary found. install PHP named $BIN_DIR/php-?.?.?."
+  exit 1
 fi
 
 php_script_path=
@@ -26,16 +36,14 @@ else
   php_code=`echo $1 | sed 's/[; ]*$//'`
 fi
 
-for PHP_PATH in $BIN_DIR/php-?.?.?
-do
-if [ -n "$php_script_path" ]
-then
-  RESULT=`$PHP_PATH "$php_script_path"`
-else
-  RESULT=`$PHP_PATH -r "$php_code;"`
-  if [ $? = 0 -a -z "$RESULT" ] ; then
-    RESULT=`$PHP_PATH -r "var_dump($php_code);"`
+for PHP_PATH in $PHPS; do
+  if [ -n "$php_script_path" ]; then
+    RESULT=`$PHP_PATH "$php_script_path"`
+  else
+    RESULT=`$PHP_PATH -r "$php_code;"`
+    if [ $? = 0 -a -z "$RESULT" ] ; then
+      RESULT=`$PHP_PATH -r "var_dump($php_code);"`
+    fi
   fi
-fi
   echo `basename $PHP_PATH`": "$RESULT
 done
