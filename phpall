@@ -22,7 +22,6 @@ if [ -z "$1" ]; then
 fi
 
 PHPS=`find $BIN_DIR -name 'php-?.?.?'`
-
 if [ -z "$PHPS" ] ; then
   echo "phpall: no PHP binary found. install PHP named $BIN_DIR/php-?.?.?."
   exit 1
@@ -33,6 +32,7 @@ php_code=
 if [ -f "$1" ]; then
   php_script_path="$1"
 else
+  # remove trailing whitespaces and semicolons
   php_code=`echo $1 | sed 's/[; ]*$//'`
 fi
 
