@@ -1,31 +1,28 @@
 #! /bin/sh
 
-php_pkgs=`find . -path './php-5.*.tar.gz'`
-if [ -z "$php_pkgs" ]; then
-    no_targz=true
-else
-    for php_pkg in $php_pkgs; do
+php_gz_pkgs=`find . -path './php-5.*.tar.gz'`
+php_bz2_pkgs=`find . -path './php-5.*.tar.bz2'`
+
+if [ -z "$php_gz_pkgs" -a -z "$php_bz2_pkgs" ]; then
+    echo "No PHP package found: place php-5.*.tar.{gz,bz2} in this directory."
+fi
+
+if [ -n "$php_gz_pkgs" ]; then
+    for php_pkg in $php_gz_pkgs; do
         if [ ! -d `basename $php_pkg .tar.gz` ]; then
             tar xvzf $php_pkg
         fi
     done
 fi
-php_pkgs=`find . -path './php-5.*.tar.bz2'`
-if [ -z "$php_pkgs" ]; then
-    no_tarbz2=true
-else
-    for php_pkg in "$php_pkgs"; do
+if [ -n "$php_bz2_pkgs" ]; then
+    for php_pkg in $php_bz2_pkgs; do
         if [ ! -d `basename $php_pkg .tar.bz2` ]; then
             tar xvjf $php_pkg
         fi
     done
 fi
 
-if [ $no_targz -a $no_tarbz2 ]; then
-    echo "No PHP package found: place php-5.*.tar.{gz,bz2} in this directory."
-fi
-
-php_dirs=`find . -type d -path './php-5.0.[0123]'`
+php_dirs=`find . -type d -name 'php-5.0.[0123]*' -path './php-5.0.[0123]*'`
 if [ -n "$php_dirs" ]; then
     for php_dir in php-5.0.[0123]; do
         cd $php_dir
@@ -48,7 +45,7 @@ case `uname` in
     ;;
 esac
 
-php_dirs=`find . -type d -path './php-5.0.?'`
+php_dirs=`find . -type d -name 'php-5.0.*' -path './php-5.0.*'`
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
         if [ ! -f $php_dir/sapi/cli/php ]; then
@@ -60,7 +57,7 @@ if [ -n "$php_dirs" ]; then
     done
 fi
 
-php_dirs=`find . -type d -path './php-5.[1-9].?'`
+php_dirs=`find . -type d -name 'php-5.[1-9].*' -path './php-5.[1-9].*'`
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
         if [ ! -f $php_dir/sapi/cli/php ]; then
