@@ -21,7 +21,8 @@ if [ -z "$1" ]; then
   exit
 fi
 
-PHPS=`find $BIN_DIR -name 'php-?.?.?'`
+PHPS=`find $BIN_DIR -name 'php-?.?.*' | php -r '$lines=file("php://stdin");natsort($lines);echo join("",$lines);'`
+
 if [ -z "$PHPS" ] ; then
   echo "phpall: no PHP binary found. install PHP named $BIN_DIR/php-?.?.?."
   exit 1
