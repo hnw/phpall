@@ -1,10 +1,11 @@
 #! /bin/sh
 
-php_gz_pkgs=`find . -type f  -maxdepth 1 -name 'php-5.*.tar.gz'`
-php_bz2_pkgs=`find . -type f  -maxdepth 1 -name 'php-5.*.tar.bz2'`
+php_gz_pkgs=`find . -maxdepth 1 -type f '(' -name 'php-5.?.?.tar.gz' -o -name 'php-5.?.?RC?.tar.gz' -o -name 'php-5.?.?alpha?.tar.gz' ')'`
+php_bz2_pkgs=`find . -maxdepth 1 -type f '(' -name 'php-5.?.?.tar.bz2' -o -name 'php-5.?.?RC?.tar.bz2' -o -name 'php-5.?.?alpha?.tar.bz2' ')'`
 
 if [ -z "$php_gz_pkgs" -a -z "$php_bz2_pkgs" ]; then
-    echo "No PHP package found: place php-5.*.tar.{gz,bz2} in this directory."
+    echo "cannot access php-5.*.tar.{gz,bz2}: No PHP package found"
+    exit
 fi
 
 if [ -n "$php_gz_pkgs" ]; then
@@ -22,7 +23,9 @@ if [ -n "$php_bz2_pkgs" ]; then
     done
 fi
 
-old_php_dirs=`find . -type d  -maxdepth 1 -name 'php-5.0.[0123]*'`
+echo 3
+
+old_php_dirs=`find . -maxdepth 1 -type d '(' -name 'php-5.0.[0123]' -o -name 'php-5.0.[0123]RC?' -o -name 'php-5.0.[0123]alpha?' ')'`
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
@@ -51,7 +54,8 @@ case `uname` in
     ;;
 esac
 
-php_dirs=`find . -type d -maxdepth 1 '(' -name 'php-5.0.*' -o -name 'php-5.[1-9].*' ')'`
+php_dirs=`find . -maxdepth 1 -type d '(' -name 'php-5.?.?' -o -name 'php-5.?.?RC?' -o -name 'php-5.?.?alpha?' ')'`
+
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
         if [ ! -f $php_dir/sapi/cli/php ]; then
@@ -63,21 +67,8 @@ if [ -n "$php_dirs" ]; then
     done
 fi
 
-#php_dirs=`find . -type d  -path './php-5.[1-9].*'`
-#if [ -n "$php_dirs" ]; then
-#    for php_dir in $php_dirs; do
-#        if [ ! -f $php_dir/sapi/cli/php ]; then
-#            cd $php_dir
-#            CFLAGS=$CFLAGS EXTRA_LIBS=$EXTRA_LIBS ./configure --enable-mbstring --disable-cgi || ( autoconf && CFLAGS=$CFLAGS EXTRA_LIBS=$EXTRA_LIBS ./configure --enable-mbstring --disable-cgi && touch .done_autoconf )
-#            make
-#            cd ..
-#        fi
-#    done
-#fi
-
 mkdir -p $HOME/bin
 
-php_dirs=`find . -type d -maxdepth 1 '(' -name 'php-5.0.*' -o -name 'php-5.[1-9].*' ')'`
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
         if [ -f $php_dir/sapi/cli/php ]; then
