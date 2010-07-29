@@ -1,7 +1,7 @@
 #! /bin/sh
 
-php_gz_pkgs=`find . -maxdepth 1 -type f '(' -name 'php-5.?.?.tar.gz' -o -name 'php-5.?.?RC?.tar.gz' -o -name 'php-5.?.?alpha?.tar.gz' ')'`
-php_bz2_pkgs=`find . -maxdepth 1 -type f '(' -name 'php-5.?.?.tar.bz2' -o -name 'php-5.?.?RC?.tar.bz2' -o -name 'php-5.?.?alpha?.tar.bz2' ')'`
+php_gz_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.gz' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?\.tar\.gz$'`
+php_bz2_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.bz2' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?\.tar\.bz2$'`
 
 if [ -z "$php_gz_pkgs" -a -z "$php_bz2_pkgs" ]; then
     echo "cannot access php-5.*.tar.{gz,bz2}: No PHP package found"
@@ -23,9 +23,8 @@ if [ -n "$php_bz2_pkgs" ]; then
     done
 fi
 
-echo 3
+old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0123]*' | egrep '\.[0-3]((alpha|RC)[0-9]+)?$'`
 
-old_php_dirs=`find . -maxdepth 1 -type d '(' -name 'php-5.0.[0123]' -o -name 'php-5.0.[0123]RC?' -o -name 'php-5.0.[0123]alpha?' ')'`
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
@@ -54,7 +53,7 @@ case `uname` in
     ;;
 esac
 
-php_dirs=`find . -maxdepth 1 -type d '(' -name 'php-5.?.?' -o -name 'php-5.?.?RC?' -o -name 'php-5.?.?alpha?' ')'`
+php_dirs=`find . -maxdepth 1 -type d -name 'php-5.*.*' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?$'`
 
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
