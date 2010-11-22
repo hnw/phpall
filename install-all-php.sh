@@ -35,7 +35,7 @@ fi
 
 CFLAGS=
 EXTRA_LIBS=
-CONFIGURE_OPTS="--enable-mbstring --disable-cgi"
+CONFIGURE_OPTS="--enable-mbstring --disable-cgi --with-zlib --with-bz2"
 
 case `uname` in
   Darwin)
@@ -45,10 +45,11 @@ case `uname` in
         # via: http://stackoverflow.com/questions/1204440/errors-linking-libresolv-when-building-php-5-2-10-from-source-on-os-x
         EXTRA_LIBS=-lresolv
     fi
-    if [ -f  /opt/local/lib/libxml2.dylib -a -f /opt/local/lib/libiconv.dylib ]; then
-        CONFIGURE_OPTS="--with-libxml-dir=/opt/local -with-iconv=/opt/local --enable-mbstring --disable-cgi"
-    else
-        CONFIGURE_OPTS="--disable-mbstring --disable-cgi"
+    if [ -f /opt/local/lib/libxml2.dylib ]; then
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --with-libxml-dir=/opt/local"
+    fi
+    if [ -f /opt/local/lib/libiconv.dylib ]; then
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --with-iconv=/opt/local"
     fi
     ;;
 esac
