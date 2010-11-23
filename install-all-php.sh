@@ -35,7 +35,7 @@ fi
 
 CFLAGS=
 EXTRA_LIBS=
-CONFIGURE_OPTS="--enable-mbstring --disable-cgi --with-zlib --with-bz2"
+CONFIGURE_OPTS="--enable-mbstring --disable-cgi --with-zlib --with-bz2 --with-bcmath"
 
 case `uname` in
   Darwin)
@@ -45,11 +45,28 @@ case `uname` in
         # via: http://stackoverflow.com/questions/1204440/errors-linking-libresolv-when-building-php-5-2-10-from-source-on-os-x
         EXTRA_LIBS=-lresolv
     fi
+    if [ -f /usr/lib/libssl.dylib ]; then
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --with-openssl=/usr"
+    fi
     if [ -f /opt/local/lib/libxml2.dylib ]; then
+        # MacPorts
         CONFIGURE_OPTS="$CONFIGURE_OPTS --with-libxml-dir=/opt/local"
+    elif [ -f /usr/local/lib/libxml2.dylib ]; then
+        # Homebrew
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --with-libxml-dir=/usr/local"
+    else
+        # MacOSX stock
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --with-libxml-dir=/usr"
     fi
     if [ -f /opt/local/lib/libiconv.dylib ]; then
+        # MacPorts
         CONFIGURE_OPTS="$CONFIGURE_OPTS --with-iconv=/opt/local"
+    elif [ -f /usr/local/lib/libiconv.dylib ]; then
+        # Homebrew
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --with-iconv=/usr/local"
+    else
+        # MacOSX stock libiconv is not compatible, so disabled.
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --without-iconv"
     fi
     ;;
 esac
