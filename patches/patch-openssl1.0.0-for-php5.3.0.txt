@@ -1,0 +1,60 @@
+--- php-5.3.0-orig/ext/openssl/openssl.c	2009-04-20 18:44:29.000000000 +0900
++++ php-5.3.0/ext/openssl/openssl.c	2011-01-09 16:52:35.000000000 +0900
+@@ -57,7 +57,9 @@
+ #define OPENSSL_ALGO_SHA1 	1
+ #define OPENSSL_ALGO_MD5	2
+ #define OPENSSL_ALGO_MD4	3
++#ifdef HAVE_OPENSSL_MD2_H
+ #define OPENSSL_ALGO_MD2	4
++#endif
+ #define OPENSSL_ALGO_DSS1	5
+ 
+ #define DEBUG_SMIME	0
+@@ -502,8 +504,13 @@
+ static char default_ssl_conf_filename[MAXPATHLEN];
+ 
+ struct php_x509_request { /* {{{ */
++#if OPENSSL_VERSION_NUMBER >= 0x10000002L
++	LHASH_OF(CONF_VALUE) * global_config;	/* Global SSL config */
++	LHASH_OF(CONF_VALUE) * req_config;		/* SSL config for this request */
++#else
+ 	LHASH * global_config;	/* Global SSL config */
+ 	LHASH * req_config;		/* SSL config for this request */
++#endif
+ 	const EVP_MD * md_alg;
+ 	const EVP_MD * digest;
+ 	char	* section_name,
+@@ -680,7 +687,11 @@
+ }
+ /* }}} */
+ 
++#if OPENSSL_VERSION_NUMBER >= 0x10000002L
++static inline int php_openssl_config_check_syntax(const char * section_label, const char * config_filename,	const char * section, LHASH_OF(CONF_VALUE) * config TSRMLS_DC) /* {{{ */
++#else
+ static inline int php_openssl_config_check_syntax(const char * section_label, const char * config_filename,	const char * section, LHASH * config TSRMLS_DC) /* {{{ */
++#endif
+ {
+ 	X509V3_CTX ctx;
+ 	
+@@ -904,9 +915,11 @@
+ 		case OPENSSL_ALGO_MD4:
+ 			mdtype = (EVP_MD *) EVP_md4();
+ 			break;
++#ifdef HAVE_OPENSSL_MD2_H
+ 		case OPENSSL_ALGO_MD2:
+ 			mdtype = (EVP_MD *) EVP_md2();
+ 			break;
++#endif
+ 		case OPENSSL_ALGO_DSS1:
+ 			mdtype = (EVP_MD *) EVP_dss1();
+ 			break;
+@@ -988,7 +1001,9 @@
+ 	REGISTER_LONG_CONSTANT("OPENSSL_ALGO_SHA1", OPENSSL_ALGO_SHA1, CONST_CS|CONST_PERSISTENT);
+ 	REGISTER_LONG_CONSTANT("OPENSSL_ALGO_MD5", OPENSSL_ALGO_MD5, CONST_CS|CONST_PERSISTENT);
+ 	REGISTER_LONG_CONSTANT("OPENSSL_ALGO_MD4", OPENSSL_ALGO_MD4, CONST_CS|CONST_PERSISTENT);
++#ifdef HAVE_OPENSSL_MD2_H
+ 	REGISTER_LONG_CONSTANT("OPENSSL_ALGO_MD2", OPENSSL_ALGO_MD2, CONST_CS|CONST_PERSISTENT);
++#endif
+ 	REGISTER_LONG_CONSTANT("OPENSSL_ALGO_DSS1", OPENSSL_ALGO_DSS1, CONST_CS|CONST_PERSISTENT);
+ 
+ 	/* flags for S/MIME */

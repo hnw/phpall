@@ -1,5 +1,7 @@
 #! /bin/sh
 
+dirname=`dirname $0`
+
 php_gz_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.gz' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?\.tar\.gz$'`
 php_bz2_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.bz2' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?\.tar\.bz2$'`
 
@@ -23,19 +25,76 @@ if [ -n "$php_bz2_pkgs" ]; then
     done
 fi
 
+# Compiling PHP 5.0.0-5.0.3 with gcc4
+#  see: http://bugs.php.net/32150
+
 old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0123]*' | egrep '\.[0-3]((alpha|RC)[0-9]+)?$'`
 
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        perl -i.bak -pe 's|(#include "zend.h")|\1\n#include "zend_compile.h"|' Zend/zend_modules.h
+        patch -p1 -N < $dirname/patches/patch-gcc4-for-php5.0.3.txt
         cd ..
     done
 fi
 
+# Compiling old PHPs with OpenSSL 1.0
+#  see: http://bugs.php.net/48116
+#  see: http://bugs.php.net/50859
+
+# PHP 5.0.x - 5.1.x
+old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.[01].[0-9]'`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.1.6.txt
+        cd ..
+    done
+fi
+
+# PHP 5.2.0 - 5.2.6
+old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.2.[0-6]'`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.2.6.txt
+        cd ..
+    done
+fi
+
+# PHP 5.2.7 - 5.2.12
+#  Note: Patching to PHP 5.2.11 and 5.2.12 failed partialy, but no problem.
+old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.[7-9]' -or -name 'php-5.2.1[0-2]' \)`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.2.10.txt
+        cd ..
+    done
+fi
+
+# PHP 5.3.0 - 5.3.1
+#  Note: Patching to PHP 5.3.1 failed partialy, but no problem.
+old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.3.[0-1]'`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.3.0.txt
+        cd ..
+    done
+fi
+
+# for PHP 5.2.12 with MacOSX 10.5
+#  see:http://bugs.php.net/50508
+# T.B.D.
+
 CFLAGS=
 EXTRA_LIBS=
-CONFIGURE_OPTS="--enable-mbstring --disable-cgi --with-zlib --with-bz2 --with-bcmath"
+CONFIGURE_OPTS="--enable-mbstring --disable-cgi --with-zlib --with-bz2 --enable-bcmath"
 
 case `uname` in
   Darwin)
@@ -73,6 +132,7 @@ esac
 
 php_dirs=`find . -maxdepth 1 -type d -name 'php-5.*.*' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?$'`
 
+# configure & make
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
         if [ ! -f $php_dir/sapi/cli/php ]; then
@@ -86,6 +146,7 @@ fi
 
 mkdir -p $HOME/bin
 
+# installing PHP binaries
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
         if [ -f $php_dir/sapi/cli/php ]; then
