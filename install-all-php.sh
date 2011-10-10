@@ -2,8 +2,8 @@
 
 dirname=`dirname $0`
 
-php_gz_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.gz' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?\.tar\.gz$'`
-php_bz2_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.bz2' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?\.tar\.bz2$'`
+php_gz_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.gz' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?\.tar\.gz$'`
+php_bz2_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.bz2' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?\.tar\.bz2$'`
 
 if [ -z "$php_gz_pkgs" -a -z "$php_bz2_pkgs" ]; then
     echo "cannot access php-5.*.tar.{gz,bz2}: No PHP package found"
@@ -28,7 +28,7 @@ fi
 # Compiling PHP 5.0.0-5.0.3 with gcc4
 #  see: http://bugs.php.net/32150
 
-old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0123]*' | egrep '\.[0-3]((alpha|RC)[0-9]+)?$'`
+old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0123]*' | egrep '\.[0-3]((alpha|beta|RC)[0-9]+)?$'`
 
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
@@ -130,7 +130,7 @@ case `uname` in
     ;;
 esac
 
-php_dirs=`find . -maxdepth 1 -type d -name 'php-5.*.*' | egrep '\.[0-9]+((alpha|RC)[0-9]+)?$'`
+php_dirs=`find . -maxdepth 1 -type d -name 'php-5.*.*' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?$'`
 
 # configure & make
 if [ -n "$php_dirs" ]; then
