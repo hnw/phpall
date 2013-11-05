@@ -135,6 +135,7 @@ fi
 
 # To work with libxml2 2.9.0+
 #  for PHP 5.2.12-5.2.17, 5.3.1-5.3.16, 5.4.0-5.4.6
+
 old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.1[2-7]' -or -name 'php-5.3.[1-9]' -or -name 'php-5.3.1[0-6]' -or -name 'php-5.4.[0-6]' \)`
 
 if [ -n "$old_php_dirs" ]; then
@@ -145,6 +146,18 @@ if [ -n "$old_php_dirs" ]; then
     done
 fi
 
+# To fix configuration problem in oniguruma of PHP 5.0.x
+# see: https://bugs.php.net/bug.php?id=34977
+
+old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0-5]'`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-to-php-5.0.5-with-oniguruma-configuration.txt
+        cd ..
+    done
+fi
 
 # for PHP 5.2.12 with MacOSX 10.5
 #  see:http://bugs.php.net/50508

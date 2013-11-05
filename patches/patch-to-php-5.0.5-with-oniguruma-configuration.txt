@@ -1,0 +1,62 @@
+diff -r -c php-5.0.5-orig/configure php-5.0.5/configure
+*** php-5.0.5-orig/configure	2005-09-05 20:16:17.000000000 +0900
+--- php-5.0.5/configure	2013-11-06 00:20:21.000000000 +0900
+***************
+*** 52888,52894 ****
+  #line 52889 "configure"
+  #include "confdefs.h"
+  #include <stdarg.h>
+- int main() {
+  
+  int foo(int x, ...) {
+  	va_list va;
+--- 52888,52893 ----
+***************
+*** 52900,52906 ****
+  }
+  int main() { return foo(10, "", 3.14); }
+        
+- ; return 0; }
+  EOF
+  if { (eval echo configure:52906: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+    rm -rf conftest*
+--- 52899,52904 ----
+Only in php-5.0.5: configure~
+diff -r -c php-5.0.5-orig/ext/mbstring/config.m4 php-5.0.5/ext/mbstring/config.m4
+*** php-5.0.5-orig/ext/mbstring/config.m4	2005-02-21 08:02:48.000000000 +0900
+--- php-5.0.5/ext/mbstring/config.m4	2013-11-06 00:17:49.000000000 +0900
+***************
+*** 55,61 ****
+  AC_DEFUN([PHP_MBSTRING_SETUP_MBREGEX], [
+    if test "$PHP_MBREGEX" = "yes"; then
+      AC_CACHE_CHECK(for variable length prototypes and stdarg.h, cv_php_mbstring_stdarg, [
+!       AC_TRY_COMPILE([#include <stdarg.h>], [
+  int foo(int x, ...) {
+  	va_list va;
+  	va_start(va, x);
+--- 55,62 ----
+  AC_DEFUN([PHP_MBSTRING_SETUP_MBREGEX], [
+    if test "$PHP_MBREGEX" = "yes"; then
+      AC_CACHE_CHECK(for variable length prototypes and stdarg.h, cv_php_mbstring_stdarg, [
+!       AC_TRY_RUN([
+! #include <stdarg.h>
+  int foo(int x, ...) {
+  	va_list va;
+  	va_start(va, x);
+***************
+*** 65,71 ****
+  	return 0;
+  }
+  int main() { return foo(10, "", 3.14); }
+!       ], [cv_php_mbstring_stdarg=yes], [cv_php_mbstring_stdarg=no])
+      ])
+  
+      AC_CHECK_HEADERS([stdlib.h string.h strings.h unistd.h sys/time.h sys/times.h])
+--- 66,72 ----
+  	return 0;
+  }
+  int main() { return foo(10, "", 3.14); }
+!       ], [cv_php_mbstring_stdarg=yes], [cv_php_mbstring_stdarg=no], [cv_php_mbstring_stdarg=no])
+      ])
+  
+      AC_CHECK_HEADERS([stdlib.h string.h strings.h unistd.h sys/time.h sys/times.h])
