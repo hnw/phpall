@@ -1,0 +1,36 @@
+diff -c -r php-5.1.6-orig/ext/dom/documenttype.c php-5.1.6/ext/dom/documenttype.c
+*** php-5.1.6-orig/ext/dom/documenttype.c	2013-11-05 09:51:02.000000000 +0900
+--- php-5.1.6/ext/dom/documenttype.c	2013-11-05 09:52:33.000000000 +0900
+***************
+*** 216,222 ****
+--- 216,226 ----
+  		if (buff != NULL) {
+  			xmlNodeDumpOutput (buff, NULL, (xmlNodePtr) intsubset, 0, 0, NULL);
+  			xmlOutputBufferFlush(buff);
++ #ifdef LIBXML2_NEW_BUFFER
++ 			strintsubset = xmlStrndup(xmlOutputBufferGetContent(buff), xmlOutputBufferGetSize(buff));
++ #else
+  			strintsubset = xmlStrndup(buff->buffer->content, buff->buffer->use);
++ #endif
+  			(void)xmlOutputBufferClose(buff);
+  			ZVAL_STRING(*retval, (char *) strintsubset, 1);
+  			return SUCCESS;
+Only in php-5.1.6/ext/dom: documenttype.c~
+diff -c -r php-5.1.6-orig/ext/simplexml/simplexml.c php-5.1.6/ext/simplexml/simplexml.c
+*** php-5.1.6-orig/ext/simplexml/simplexml.c	2013-11-05 09:51:06.000000000 +0900
+--- php-5.1.6/ext/simplexml/simplexml.c	2013-11-05 09:53:24.000000000 +0900
+***************
+*** 1220,1226 ****
+--- 1220,1230 ----
+  
+  			xmlNodeDumpOutput(outbuf, (xmlDocPtr) sxe->document->ptr, node, 0, 1, ((xmlDocPtr) sxe->document->ptr)->encoding);
+  			xmlOutputBufferFlush(outbuf);
++ #ifdef LIBXML2_NEW_BUFFER
++ 			strval = xmlStrndup(xmlOutputBufferGetContent(outbuf), xmlOutputBufferGetSize(outbuf));
++ #else
+  			strval = xmlStrndup(outbuf->buffer->content, outbuf->buffer->use);
++ #endif
+  			xmlOutputBufferClose(outbuf);
+  		}
+  
+Only in php-5.1.6/ext/simplexml: simplexml.c~

@@ -4,9 +4,10 @@ dirname=`dirname $0`
 
 php_gz_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.gz' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?\.tar\.gz$'`
 php_bz2_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.bz2' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?\.tar\.bz2$'`
+php_xz_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.xz' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?\.tar\.xz$'`
 
-if [ -z "$php_gz_pkgs" -a -z "$php_bz2_pkgs" ]; then
-    echo "cannot access php-5.*.tar.{gz,bz2}: No PHP package found"
+if [ -z "$php_gz_pkgs" -a -z "$php_bz2_pkgs" -a -z "$php_xz_pkgs" ]; then
+    echo "cannot access php-5.*.tar.{gz,bz2,xz}: No PHP package found"
     exit
 fi
 
@@ -17,10 +18,19 @@ if [ -n "$php_gz_pkgs" ]; then
         fi
     done
 fi
+
 if [ -n "$php_bz2_pkgs" ]; then
     for php_pkg in $php_bz2_pkgs; do
         if [ ! -d `basename $php_pkg .tar.bz2` ]; then
             tar xvjf $php_pkg
+        fi
+    done
+fi
+
+if [ -n "$php_xz_pkgs" ]; then
+    for php_pkg in $php_xz_pkgs; do
+        if [ ! -d `basename $php_pkg .tar.xz` ]; then
+            tar xvf $php_pkg
         fi
     done
 fi
@@ -38,11 +48,12 @@ if [ -n "$old_php_dirs" ]; then
     done
 fi
 
-# Compiling old PHPs with OpenSSL 1.0
-#  see: http://bugs.php.net/48116
-#  see: http://bugs.php.net/50859
+# To work with OpenSSL 1.0+
+#  for PHP 5.0.x, 5.1.x
+#
+# see: http://bugs.php.net/48116
+# see: http://bugs.php.net/50859
 
-# PHP 5.0.x - 5.1.x
 old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.[01].[0-9]'`
 
 if [ -n "$old_php_dirs" ]; then
@@ -53,7 +64,9 @@ if [ -n "$old_php_dirs" ]; then
     done
 fi
 
-# PHP 5.2.0 - 5.2.6
+# To work with OpenSSL 1.0+
+#  for PHP 5.2.0-5.2.6
+
 old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.2.[0-6]'`
 
 if [ -n "$old_php_dirs" ]; then
@@ -64,8 +77,11 @@ if [ -n "$old_php_dirs" ]; then
     done
 fi
 
-# PHP 5.2.7 - 5.2.12
-#  Note: Patching to PHP 5.2.11 and 5.2.12 failed partialy, but no problem.
+# To work with OpenSSL 1.0+
+#  for PHP 5.2.7 - 5.2.12
+#
+# Note: Patching to PHP 5.2.11 and 5.2.12 failed partialy, but no problem.
+
 old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.[7-9]' -or -name 'php-5.2.1[0-2]' \)`
 
 if [ -n "$old_php_dirs" ]; then
@@ -76,8 +92,11 @@ if [ -n "$old_php_dirs" ]; then
     done
 fi
 
-# PHP 5.3.0 - 5.3.1
-#  Note: Patching to PHP 5.3.1 failed partialy, but no problem.
+# To work with OpenSSL 1.0+
+#  for PHP 5.3.0 - 5.3.1
+#
+# Note: Patching to PHP 5.3.1 failed partialy, but no problem.
+
 old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.3.[0-1]'`
 
 if [ -n "$old_php_dirs" ]; then
@@ -87,6 +106,45 @@ if [ -n "$old_php_dirs" ]; then
         cd ..
     done
 fi
+
+# To work with libxml2 2.9.0+
+#  for PHP 5.0.x, 5.1.x
+
+old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.0.[0-5]' -or -name 'php-5.1.[0-6]' \)`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-to-php5.1.6-with-libxml2-2.9.txt
+        cd ..
+    done
+fi
+
+# To work with libxml2 2.9.0+
+#  for PHP 5.2.0-5.2.11, 5.3.0
+
+old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.[0-9]' -or -name 'php-5.2.1[01]' -or -name 'php-5.3.0' \)`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-to-php5.3.0-with-libxml2-2.9.txt
+        cd ..
+    done
+fi
+
+# To work with libxml2 2.9.0+
+#  for PHP 5.2.12-5.2.17, 5.3.1-5.3.16, 5.4.0-5.4.6
+old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.1[2-7]' -or -name 'php-5.3.[1-9]' -or -name 'php-5.3.1[0-6]' -or -name 'php-5.4.[0-6]' \)`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-to-php5.4.6-with-libxml2-2.9.txt
+        cd ..
+    done
+fi
+
 
 # for PHP 5.2.12 with MacOSX 10.5
 #  see:http://bugs.php.net/50508
