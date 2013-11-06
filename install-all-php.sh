@@ -35,7 +35,7 @@ if [ -n "$php_xz_pkgs" ]; then
     done
 fi
 
-# Compiling PHP 5.0.0-5.0.3 with gcc4
+# To compie with gcc4 for PHP 5.0.0-5.0.3
 #  see: http://bugs.php.net/32150
 
 old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0123]*' | egrep '\.[0-3]((alpha|beta|RC)[0-9]+)?$'`
@@ -43,7 +43,7 @@ old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0123]*' | egrep '\.[0-3
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-gcc4-for-php5.0.3.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.0.3-for-supporting-gcc4.txt
         cd ..
     done
 fi
@@ -59,7 +59,7 @@ old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.[01].[0-9]'`
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.1.6.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.1.6-with-openssl-1.0.0.txt
         cd ..
     done
 fi
@@ -72,7 +72,7 @@ old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.2.[0-6]'`
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.2.6.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.2.6-with-openssl-1.0.0.txt
         cd ..
     done
 fi
@@ -87,7 +87,7 @@ old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.[7-9]' -or -name 'php
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.2.10.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.2.10-with-openssl-1.0.0.txt
         cd ..
     done
 fi
@@ -102,7 +102,7 @@ old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.3.[0-1]'`
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-openssl1.0.0-for-php5.3.0.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.3.0-with-openssl-1.0.0.txt
         cd ..
     done
 fi
@@ -115,7 +115,7 @@ old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.0.[0-5]' -or -name 'php
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-to-php5.1.6-with-libxml2-2.9.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.1.6-with-libxml2-2.9.txt
         cd ..
     done
 fi
@@ -128,7 +128,7 @@ old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.[0-9]' -or -name 'php
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-to-php5.3.0-with-libxml2-2.9.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.3.0-with-libxml2-2.9.txt
         cd ..
     done
 fi
@@ -141,12 +141,12 @@ old_php_dirs=`find . -maxdepth 1 -type d \( -name 'php-5.2.1[2-7]' -or -name 'ph
 if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
-        patch -p1 -N < $dirname/patches/patch-to-php5.4.6-with-libxml2-2.9.txt
+        patch -p1 -N < $dirname/patches/patch-to-php-5.4.6-with-libxml2-2.9.txt
         cd ..
     done
 fi
 
-# To fix configuration problem in oniguruma of PHP 5.0.x
+# To fix configuration problem in oniguruma with PHP 5.0.x
 # see: https://bugs.php.net/bug.php?id=34977
 
 old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0-5]'`
@@ -155,6 +155,19 @@ if [ -n "$old_php_dirs" ]; then
     for php_dir in $old_php_dirs; do
         cd $php_dir
         patch -p1 -N < $dirname/patches/patch-to-php-5.0.5-with-oniguruma-configuration.txt
+        cd ..
+    done
+fi
+
+# Change inline to static inline for C99 compliance
+#  with PHP 5.0.0-5.0.3
+
+old_php_dirs=`find . -maxdepth 1 -type d -name 'php-5.0.[0-3]'`
+
+if [ -n "$old_php_dirs" ]; then
+    for php_dir in $old_php_dirs; do
+        cd $php_dir
+        patch -p1 -N < $dirname/patches/patch-to-php-5.0.3-for-supporting-c99.txt
         cd ..
     done
 fi
