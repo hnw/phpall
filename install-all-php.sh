@@ -1,6 +1,6 @@
 #! /bin/sh
 
-dirname=`dirname $0`
+dirname=$(cd $(dirname $0);pwd)
 
 php_gz_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.gz' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?\.tar\.gz$'`
 php_bz2_pkgs=`find . -maxdepth 1 -type f -name 'php-5.*.*.tar.bz2' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?\.tar\.bz2$'`
