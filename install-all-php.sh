@@ -1,4 +1,25 @@
-#! /bin/sh
+#! /bin/bash
+
+usage_exit() {
+        echo "Usage: $0 [-j N] " 1>&2
+        exit 1
+}
+
+NJOB=""
+
+while getopts j:h OPT
+do
+    case $OPT in
+        j)  NJOB=$OPTARG
+            ;;
+        h)  usage_exit
+            ;;
+        \?) usage_exit
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
 
 dirname=$(cd $(dirname $0);pwd)
 
@@ -216,13 +237,18 @@ esac
 
 php_dirs=`find . -maxdepth 1 -type d -name 'php-5.*.*' | egrep '\.[0-9]+((alpha|beta|RC)[0-9]+)?$'`
 
+MAKE_OPTS=""
+if [ -n "$NJOB" ]; then
+    MAKE_OPTS="$MAKE_OPTS -j $NJOB"
+fi
+
 # configure & make
 if [ -n "$php_dirs" ]; then
     for php_dir in $php_dirs; do
         if [ ! -f $php_dir/sapi/cli/php ]; then
             cd $php_dir
             CFLAGS=$CFLAGS EXTRA_LIBS=$EXTRA_LIBS ./configure $CONFIGURE_OPTS
-            make
+            make $MAKE_OPTS
             cd ..
         fi
     done
