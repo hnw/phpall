@@ -1,0 +1,82 @@
+diff -c -r php-5.3.6-orig/ext/openssl/openssl.c php-5.3.6/ext/openssl/openssl.c
+*** php-5.3.6-orig/ext/openssl/openssl.c	2011-02-21 21:47:38.000000000 +0900
+--- php-5.3.6/ext/openssl/openssl.c	2016-05-02 11:39:32.000000000 +0900
+***************
+*** 1074,1080 ****
+--- 1074,1082 ----
+  
+  	php_stream_xport_register("ssl", php_openssl_ssl_socket_factory TSRMLS_CC);
+  	php_stream_xport_register("sslv3", php_openssl_ssl_socket_factory TSRMLS_CC);
++ #ifndef OPENSSL_NO_SSL2
+  	php_stream_xport_register("sslv2", php_openssl_ssl_socket_factory TSRMLS_CC);
++ #endif
+  	php_stream_xport_register("tls", php_openssl_ssl_socket_factory TSRMLS_CC);
+  
+  	/* override the default tcp socket provider */
+***************
+*** 1109,1115 ****
+--- 1111,1119 ----
+  	php_unregister_url_stream_wrapper("ftps" TSRMLS_CC);
+  
+  	php_stream_xport_unregister("ssl" TSRMLS_CC);
++ #ifndef OPENSSL_NO_SSL2
+  	php_stream_xport_unregister("sslv2" TSRMLS_CC);
++ #endif
+  	php_stream_xport_unregister("sslv3" TSRMLS_CC);
+  	php_stream_xport_unregister("tls" TSRMLS_CC);
+  
+Only in php-5.3.6/ext/openssl/: openssl.c~
+diff -c -r php-5.3.6-orig/ext/openssl/xp_ssl.c php-5.3.6/ext/openssl/xp_ssl.c
+*** php-5.3.6-orig/ext/openssl/xp_ssl.c	2011-01-01 11:19:59.000000000 +0900
+--- php-5.3.6/ext/openssl/xp_ssl.c	2016-05-02 11:43:18.000000000 +0900
+***************
+*** 329,337 ****
+--- 329,342 ----
+  			method = SSLv23_client_method();
+  			break;
+  		case STREAM_CRYPTO_METHOD_SSLv2_CLIENT:
++ #ifdef OPENSSL_NO_SSL2
++ 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "SSLv2 support is not compiled into the OpenSSL library PHP is linked against");
++ 			return -1;
++ #else
+  			sslsock->is_client = 1;
+  			method = SSLv2_client_method();
+  			break;
++ #endif
+  		case STREAM_CRYPTO_METHOD_SSLv3_CLIENT:
+  			sslsock->is_client = 1;
+  			method = SSLv3_client_method();
+***************
+*** 349,357 ****
+--- 354,367 ----
+  			method = SSLv3_server_method();
+  			break;
+  		case STREAM_CRYPTO_METHOD_SSLv2_SERVER:
++ #ifdef OPENSSL_NO_SSL2
++ 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "SSLv2 support is not compiled into the OpenSSL library PHP is linked against");
++ 			return -1;
++ #else
+  			sslsock->is_client = 0;
+  			method = SSLv2_server_method();
+  			break;
++ #endif
+  		case STREAM_CRYPTO_METHOD_TLS_SERVER:
+  			sslsock->is_client = 0;
+  			method = TLSv1_server_method();
+***************
+*** 912,919 ****
+--- 922,934 ----
+  		sslsock->enable_on_connect = 1;
+  		sslsock->method = STREAM_CRYPTO_METHOD_SSLv23_CLIENT;
+  	} else if (strncmp(proto, "sslv2", protolen) == 0) {
++ #ifdef OPENSSL_NO_SSL2
++ 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "SSLv2 support is not compiled into the OpenSSL library PHP is linked against");
++ 		return NULL;
++ #else
+  		sslsock->enable_on_connect = 1;
+  		sslsock->method = STREAM_CRYPTO_METHOD_SSLv2_CLIENT;
++ #endif
+  	} else if (strncmp(proto, "sslv3", protolen) == 0) {
+  		sslsock->enable_on_connect = 1;
+  		sslsock->method = STREAM_CRYPTO_METHOD_SSLv3_CLIENT;
+Only in php-5.3.6/ext/openssl/: xp_ssl.c~
