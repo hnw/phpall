@@ -128,8 +128,8 @@ if [ -n "$old_php_dirs" ]; then
     done
 fi
 
-# Supporting SSLv2-disabled OpenSSL 
-#  for PHP 5.0.x, 5.1.x, 5.2.x, 5.3.0 - 5.3.6
+# Supporting SSLv2-disabled OpenSSL for PHP < 5.3.7
+# (via: https://bugs.php.net/bug.php?id=54736)
 #
 # Note: Patching to PHP 5.0.0, 5.0.1 failed partialy, but no problem.
 
